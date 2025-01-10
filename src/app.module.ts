@@ -1,0 +1,31 @@
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configServise: ConfigService) => ({
+        type: 'postgres',
+        host: configServise.get('TYPEORM_HOST'),
+        port: configServise.get('TYPEORM_PORT'),
+        username: configServise.get('TYPEORM_USERNAME'),
+        password: configServise.get('TYPEORM_PASSWORD'),
+        database: configServise.get('TYPEORM_DATABASE'),
+        synchronize: Boolean(configServise.get('TYPEORM_SYNCHRONIZE')),
+        logging: Boolean(configServise.get('TYPEORM_LOGGING')),
+
+      }),
+      inject: [ConfigService]
+    })
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
