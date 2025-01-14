@@ -3,6 +3,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -20,10 +22,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         database: configServise.get('TYPEORM_DATABASE'),
         synchronize: Boolean(configServise.get('TYPEORM_SYNCHRONIZE')),
         logging: Boolean(configServise.get('TYPEORM_LOGGING')),
-
       }),
       inject: [ConfigService]
-    })
+    }),
+    UserModule,
+    AuthModule
+
   ],
   controllers: [AppController],
   providers: [AppService],
