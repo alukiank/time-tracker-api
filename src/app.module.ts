@@ -11,6 +11,7 @@ import { AuthModule } from './auth/auth.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configServise: ConfigService) => ({
@@ -20,14 +21,14 @@ import { AuthModule } from './auth/auth.module';
         username: configServise.get('TYPEORM_USERNAME'),
         password: configServise.get('TYPEORM_PASSWORD'),
         database: configServise.get('TYPEORM_DATABASE'),
+        entities: [__dirname + configServise.get('TYPEORM_ENTITIES')],
         synchronize: Boolean(configServise.get('TYPEORM_SYNCHRONIZE')),
         logging: Boolean(configServise.get('TYPEORM_LOGGING')),
       }),
-      inject: [ConfigService]
+      inject: [ConfigService],
     }),
     UserModule,
-    AuthModule
-
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
