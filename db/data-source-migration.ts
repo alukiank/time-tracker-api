@@ -9,7 +9,7 @@ export const dataSourceOptions: DataSourceOptions = {
     username: process.env.TYPEORM_USERNAME,
     password: process.env.TYPEORM_PASSWORD,
     database: process.env.TYPEORM_DATABASE,
-    entities: [process.env.TYPEORM_ENTITIES],
+    entities: [__dirname + process.env.TYPEORM_ENTITIES],
     migrations: [process.env.TYPEORM_MIGRATIONS],
     synchronize: Boolean(process.env.TYPEORM_SYNCHRONIZE), 
     logging: Boolean(process.env.TYPEORM_LOGGING)
