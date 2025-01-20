@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   ParseIntPipe,
   Post,
   Res,
@@ -15,7 +16,9 @@ import {
   ApiBadRequestResponse,
   ApiBody,
   ApiCreatedResponse,
+  ApiOkResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { User } from 'src/user/entities/user.entity';
 
@@ -105,5 +108,15 @@ export class AuthController {
   async logout(@Res({ passthrough: true }) res: Response) {
     res.cookie('refreshToken', '');
     res.cookie('accessToken', '');
+  }
+
+  @UseGuards(AuthGuard('jwt-access'))
+  @Get('me')
+  @ApiOkResponse({ description: 'Current user information', type: User })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async me(
+    @CurrentUser('id') userId: number,
+  ): Promise<Omit<User, 'hashedPassword'>> {
+    return await this.authService.me(userId);
   }
 }
