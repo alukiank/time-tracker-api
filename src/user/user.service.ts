@@ -45,4 +45,25 @@ export class UserService {
     });
     return user;
   }
+
+  async getUserById({ id }: GetUserDto) {
+    if (!id) {
+      throw new BadRequestException();
+    }
+    const user = await this.userRepository.findOne({
+      where: { id },
+    });
+    return user;
+  }
+
+  async getUserWithoutPassword(
+    userId: number,
+  ): Promise<Omit<User, 'hashedPassword'>> {
+    const user = await this.getUserById({ id: userId });
+    if (!user) {
+      throw new BadRequestException();
+    }
+    const { hashedPassword, ...userWithoutPassword } = user;
+    return userWithoutPassword;
+  }
 }

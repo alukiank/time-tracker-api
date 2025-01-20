@@ -27,6 +27,10 @@ export class AuthService {
     return await this.generateTokens(userId, res);
   }
 
+  async me(userId: number) {
+    return await this.userService.getUserWithoutPassword(userId);
+  }
+
   async validateUser(email: string, password: string) {
     const userByEmail = await this.userService.getUserByEmail({ email });
     if (!userByEmail) {
