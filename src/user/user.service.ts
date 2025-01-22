@@ -9,6 +9,8 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { GetUserDto } from './dtos/get-user.dto';
 import { hash } from 'argon2';
+import { UpdateUserDto } from './dtos/update-user.dto';
+import { UpdateUserPasswordDto } from './dtos/update-user-password.dto';
 
 @Injectable()
 export class UserService {
@@ -65,5 +67,30 @@ export class UserService {
     }
     const { hashedPassword, ...userWithoutPassword } = user;
     return userWithoutPassword;
+  }
+
+  async updateUserById(userId: number, updateUserDto: UpdateUserDto) {
+    const user = await this.getUserById({ id: userId });
+    if (!user) {
+      throw new BadRequestException();
+    }
+    Object.assign(user, updateUserDto, { updatedAt: new Date() });
+    await this.userRepository.save(user);
+  }
+
+  async updateUserPasswordById(
+    userId: number,
+    { password }: UpdateUserPasswordDto,
+  ) {
+    const user = await this.getUserById({ id: userId });
+    if (!user) {
+      throw new BadRequestException();
+    }
+    const hashedPassword = await hash(password);
+    Object.assign(user, {
+      hashedPassword: hashedPassword,
+      updatedAt: new Date(),
+    });
+    await this.userRepository.save(user);
   }
 }
