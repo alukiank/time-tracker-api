@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { JwtPayLoad } from 'src/utils/types/jwt-payload';
+import { Request } from 'express';
 
 @Injectable()
 export class JwtAccessStrategy extends PassportStrategy(
@@ -16,7 +17,12 @@ export class JwtAccessStrategy extends PassportStrategy(
     private readonly userService: UserService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: (req: Request) => {
+        if (req.cookies && req.cookies['accessToken']) {
+          return req.cookies['accessToken'];
+        }
+        return null;
+      },
       ignoreExpiration: false,
       secretOrKey: configService.getOrThrow('JWT_ACCESS_SECRET'),
     });
