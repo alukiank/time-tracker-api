@@ -91,4 +91,30 @@ export class TimeEntryController {
   async deleteTimeEntry(@Param('id', ParseIntPipe) timeEntryId: number) {
     return await this.timeEntryService.deleteTimeEntry(timeEntryId);
   }
+
+  @Get('reports')
+  @ApiOperation({
+    summary: 'Get summary of time entries grouped by project',
+    description:
+      'Returns a summary of time entries grouped by project for the authenticated user.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved reports.',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          projectId: { type: 'number', example: 1 },
+          projectName: { type: 'string', example: 'Project A' },
+          totalDuration: { type: 'string', example: '12:34:56' },
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async getReports(@CurrentUser('id') userId: number) {
+    return await this.timeEntryService.getReports(userId);
+  }
 }
