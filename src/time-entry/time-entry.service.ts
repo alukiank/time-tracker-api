@@ -10,6 +10,8 @@ import { CreateTimeEntryDto } from './dtos/create-time-entry.dto';
 import { Project } from 'src/project/entities/project.entity';
 import { User } from 'src/user/entities/user.entity';
 import { UpdateTimeEntryDto } from './dtos/update-time-entry.dto';
+import { durationToSeconds, secondsToDuration } from 'src/utils/time.utils';
+import { groupBy } from 'lodash';
 
 @Injectable()
 export class TimeEntryService {
@@ -81,5 +83,28 @@ export class TimeEntryService {
       throw new NotFoundException();
     }
     await this.timeEntryRepository.remove(timeEntry);
+  }
+
+  async getReports(userId: number) {
+    const timeEntries = await this.timeEntryRepository.find({
+      where: { user: { id: userId } },
+      relations: ['project'],
+    });
+    const groupedByProject = groupBy(timeEntries, (entry) => entry.project.id);
+    return this.formatReports(groupedByProject);
+  }
+
+  private formatReports(groupedEntries: Record<number, TimeEntry[]>) {
+    return Object.entries(groupedEntries).map(([projectId, entries]) => {
+      const projectName = entries[0].project.name;
+      const totalDurationInSeconds = entries
+        .map((entry) => durationToSeconds(entry.duration))
+        .reduce((total, current) => total + current, 0);
+      return {
+        projectId: parseInt(projectId, 10),
+        projectName,
+        totalDuration: secondsToDuration(totalDurationInSeconds),
+      };
+    });
   }
 }
